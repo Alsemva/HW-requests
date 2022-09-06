@@ -1,6 +1,7 @@
 import requests
 from os import listdir
 
+
 class YaUploader:
     def __init__(self, token: str):
         self.token = token
@@ -17,27 +18,25 @@ class YaUploader:
         response = requests.get(upload_url, headers=headers, params=params)
         return response.json()
 
-    def upload(self, path_to_dir):
+    def upload(self, path_to_dir, file_list):
         """Метод загружает файлы по списку file_list на яндекс диск"""
-        # for file_path in file_list:
-        response_dict = self._get_upload_url(path_to_dir)
-        upload_files_url = response_dict.get("href", "")
-        with open(path_to_dir, 'rb') as file:
-            response = requests.put(upload_files_url, files={"file": file})
-        print(response)
-        # Функция может ничего не возвращать
+        for file_path in file_list:
+            response_dict = self._get_upload_url(f'{path_to_dir}/{file_path}')
+            upload_files_url = response_dict.get("href", "")
+            with open(f'{path_to_dir}/{file_path}', 'rb') as file:
+                response = requests.put(upload_files_url, files={"file": file})
+                print(response)
 
-def token():
-    with open('token.txt', encoding='utf-8') as t_file:
+
+def token_from_file():
+    with open('token.txt') as t_file:
         token_f = t_file.read()
     return token_f
 
 
 if __name__ == '__main__':
-    # Получить путь к загружаемому файлу и токен от пользователя
-    # path_to_dir = 'files'
-    # path_to_file = listdir(path_to_dir)
-    path_to_file = 'files/list.txt'
-    token = token()
+    path_to_dir = 'files'
+    path_to_file = listdir(path_to_dir)
+    token = token_from_file()
     uploader = YaUploader(token)
-    result = uploader.upload(path_to_file)
+    result = uploader.upload(path_to_dir, path_to_file)
