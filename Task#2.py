@@ -16,6 +16,7 @@ class YaUploader:
         headers = self.get_headers()
         params = {"path": file_path, "overwrite": "true"}
         response = requests.get(upload_url, headers=headers, params=params)
+        response.raise_for_status()
         return response.json()
 
     def upload(self, path_to_dir, file_list):
@@ -25,7 +26,10 @@ class YaUploader:
             upload_files_url = response_dict.get("href", "")
             with open(f'{path_to_dir}/{file_path}', 'rb') as file:
                 response = requests.put(upload_files_url, files={"file": file})
-                print(response)
+                response.raise_for_status()
+                if response.status_code == 201:
+                    print('Status: OK')
+        return 'Done'
 
 
 def token_from_file():
@@ -40,3 +44,4 @@ if __name__ == '__main__':
     token = token_from_file()
     uploader = YaUploader(token)
     result = uploader.upload(path_to_dir, path_to_file)
+    print(result)
