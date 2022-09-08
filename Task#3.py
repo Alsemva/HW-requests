@@ -1,5 +1,6 @@
 import time
 import datetime
+import requests
 
 
 def get_dates():
@@ -17,7 +18,17 @@ def unix_dates():
     return {'db_yesterday': date_to_unix(day_before_yesterday), 'today': date_to_unix(today)}
 
 
+def api_stackoverflow_request(u_dates, tag):
+    url = f'https://api.stackexchange.com/2.3/questions?fromdate={u_dates["db_yesterday"]}&todate={u_dates["today"]}\
+    &order=desc&sort=activity&tagged={tag}&site=stackoverflow'
+    response = requests.get(url)
+    response.raise_for_status()
+    response_dict = response.json()
+    for title in response_dict['items']:
+        print(title['title'].replace('&#39;', "'"))
+
+
 if __name__ == '__main__':
     u_dates = unix_dates()
-    print(u_dates)
-
+    tag = 'python'
+    api_stackoverflow_request(u_dates, tag)
